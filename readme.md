@@ -24,7 +24,7 @@ With `laravel-factory-prefill` you can just skip the previous command call and i
 ![factory:prefill](https://user-images.githubusercontent.com/10154100/48952171-864e6f00-ef41-11e8-9e0d-a3c6ad332b76.gif)
 
 ## Install
-`composer require naoray/laravel-factory-prefill`
+`composer require naoray/laravel-factory-prefill --dev`
 
 ## Usage
 After running `php artisan migrate` you are good to go. If you want the `factory:prefill` command to notice the model relations, you should implement the methods first!
