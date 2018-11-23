@@ -21,7 +21,7 @@ $factory->define(Model::class, function (Faker $faker) {
 
 With `laravel-factory-prefill` you can just skip the previous command call and instead execute `php artisan factory:prefill Habit`.
 
-![factory:prefill](https://user-images.githubusercontent.com/10154100/48951760-0f64a680-ef40-11e8-84dc-d23183596178.gif)
+![factory:prefill](https://user-images.githubusercontent.com/10154100/48952171-864e6f00-ef41-11e8-9e0d-a3c6ad332b76.gif)
 
 ## Install
 `composer require naoray/laravel-factory-prefill`
