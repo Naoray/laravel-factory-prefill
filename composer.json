@@ -1,0 +1,45 @@
+{
+    "name": "naoray/laravel-factory-prefill",
+    "description": "Prefills factories with faker method suggestions",
+    "type": "package",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "factory",
+        "prefill"
+    ],
+    "authors": [
+        {
+            "name": "Krishan Koenig",
+            "email": "krishan.koenig@googlemail.com"
+        }
+    ],
+    "require": {
+        "illuminate/support": "5.7.*",
+        "doctrine/dbal": "^2.8",
+        "fzaninotto/faker": "~1.4"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Naoray\\LaravelFactoryPrefill\\": "./src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Naoray\\LaravelFactoryPrefill\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Naoray\\LaravelFactoryPrefill\\LaravelFactoryPrefillServiceProvider"
+            ]
+        }
+    }
+}
