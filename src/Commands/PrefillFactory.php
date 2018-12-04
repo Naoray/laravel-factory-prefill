@@ -120,7 +120,7 @@ class PrefillFactory extends Command
 
         return $data->type->getName() === 'integer'
             ? 'randomNumber'
-            : $guessedType ?? 'word';
+            : $guessedType;
     }
 
     /**
@@ -147,7 +147,7 @@ class PrefillFactory extends Command
     public function buildRelationFunction($model, $column)
     {
         $relationName = str_replace('_id', '', $column);
-        $foreignCallback = 'function () { return factory(App\REPLACE_THIS::class)->create(); }';
+        $foreignCallback = 'factory(App\REPLACE_THIS::class)->lazy()';
 
         try {
             $relatedModel = get_class((new $model)->$relationName()->getRelated());
