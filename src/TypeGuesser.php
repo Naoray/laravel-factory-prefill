@@ -30,10 +30,12 @@ class TypeGuesser
     public function guess($name, $size = null)
     {
         $name = Base::toLower($name);
-        if (preg_match('/^is[_A-Z]/', $name)) {
+
+        if ($this->isBoolean($name)) {
             return 'boolean';
         }
-        if (preg_match('/(_a|A)t$/', $name)) {
+
+        if ($this->isDateTime($name)) {
             return 'dateTime';
         }
 
@@ -66,23 +68,9 @@ class TypeGuesser
             case 'state':
                 return 'state';
             case 'county':
-                if ($this->generator->locale == 'en_US') {
-                    return "sprintf('%s County', \$faker->city)";
-                }
-                return 'state';
+                return $this->predictCountyType();
             case 'country':
-                switch ($size) {
-                    case 2:
-                        return 'countryCode';
-                    case 3:
-                        return 'countryISOAlpha3';
-                    case 5:
-                    case 6:
-                        return 'locale';
-                    default:
-                        return 'country';
-                }
-                break;
+                return $this->predictCountryType($size);
             case 'locale':
                 return 'locale';
             case 'currency':
@@ -96,15 +84,86 @@ class TypeGuesser
             case 'employer':
                 return 'company';
             case 'title':
-                if ($size !== null && $size <= 10) {
-                    return 'title';
-                }
-                return 'sentence';
+                return $this->predictTitleType($size);
             case 'body':
             case 'summary':
             case 'article':
             case 'description':
                 return 'text';
+            default:
+                return 'word';
         }
+    }
+
+    /**
+     * Checks if name matches boolean pattern.
+     *
+     * @param string $name
+     * @return boolean
+     */
+    protected function isBoolean($name)
+    {
+        return preg_match('/^is[_A-Z]/', $name);
+    }
+
+    /**
+     * Checks if name matches dateTime pattern.
+     *
+     * @param string $name
+     * @return boolean
+     */
+    protected function isDateTime($name)
+    {
+        return preg_match('/(_a|A)t$/', $name);
+    }
+
+    /**
+     * Predicts county type by locale.
+     *
+     * @return void
+     */
+    protected function predictCountyType()
+    {
+        if ($this->generator->locale == 'en_US') {
+            return "sprintf('%s County', \$faker->city)";
+        }
+
+        return 'state';
+    }
+
+    /**
+     * Predicts country code based on $size.
+     *
+     * @param int $size
+     * @return void
+     */
+    protected function predictCountryType($size)
+    {
+        switch ($size) {
+            case 2:
+                return 'countryCode';
+            case 3:
+                return 'countryISOAlpha3';
+            case 5:
+            case 6:
+                return 'locale';
+        }
+
+        return 'country';
+    }
+
+    /**
+     * Predicts type of title by $size.
+     *
+     * @param int $size
+     * @return void
+     */
+    protected function predictTitleType($size)
+    {
+        if ($size !== null && $size <= 10) {
+            return 'title';
+        }
+
+        return 'sentence';
     }
 }
