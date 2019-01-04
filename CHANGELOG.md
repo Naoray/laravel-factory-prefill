@@ -1,5 +1,23 @@
 # Change Log
 
+## [v1.0.2](https://github.com/naoray/laravel-factory-prefill/tree/v1.0.2) (2019-01-04)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.0.1...v1.0.2)
+
+**Merged pull requests:**
+
+- recognize unique values [\#4](https://github.com/Naoray/laravel-factory-prefill/pull/4) ([Naoray](https://github.com/Naoray))
+
+## [v1.0.1](https://github.com/naoray/laravel-factory-prefill/tree/v1.0.1) (2018-12-04)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.0...v1.0.1)
+
+**Closed issues:**
+
+- Consider lazy\(\) method for relationship [\#2](https://github.com/Naoray/laravel-factory-prefill/issues/2)
+
+**Merged pull requests:**
+
+- v1.0.1 [\#3](https://github.com/Naoray/laravel-factory-prefill/pull/3) ([Naoray](https://github.com/Naoray))
+
 ## [v1.0](https://github.com/naoray/laravel-factory-prefill/tree/v1.0) (2018-11-23)
 **Closed issues:**
 
