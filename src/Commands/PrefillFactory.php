@@ -85,10 +85,11 @@ class PrefillFactory extends Command
             }
 
             $isForeignKey = $this->isForeignKey($column, $tableIndexes);
+            $isUnique = $this->isUnique($column, $tableIndexes);
 
             $value = $isForeignKey
                 ? $this->buildRelationFunction($modelClass, $data->name)
-                : '$faker->' . $this->mapToFaker($data);
+                : ($isUnique ? '$faker->unique()->' : '$faker->') . $this->mapToFaker($data);
 
             return "'$data->name' => $value";
         })->filter(function ($data) {
@@ -133,7 +134,21 @@ class PrefillFactory extends Command
     protected function isForeignKey($name, $tableIndexes)
     {
         return !!array_where(array_keys($tableIndexes), function ($index) use ($name) {
-            return str_contains($index, $name);
+            return str_contains($index, 'foreign') && str_contains($index, $name);
+        });
+    }
+
+    /**
+     * Check if column is a unique one.
+     *
+     * @param string $name
+     * @param array $tableIndexes
+     * @return boolean
+     */
+    protected function isUnique($name, $tableIndexes)
+    {
+        return !!array_where(array_keys($tableIndexes), function ($index) use ($name) {
+            return str_contains($index, 'unique') && str_contains($index, $name);
         });
     }
 
