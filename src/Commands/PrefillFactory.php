@@ -15,7 +15,9 @@ class PrefillFactory extends Command
      *
      * @var string
      */
-    protected $signature = 'factory:prefill {model : The name of the model for which a blueprint will be created}';
+    protected $signature = 'factory:prefill 
+                                {model : The name of the model for which a blueprint will be created}
+                                {--O|own-namespace : When using this flag the model have to includ the full namespace}';
 
     /**
      * The console command description.
@@ -62,8 +64,10 @@ class PrefillFactory extends Command
             $this->call('make:model', ['name' => $modelClass]);
         }
 
+        $factoryName = collect(explode('\\', $model))->last();
+
         // check if factory exists
-        if (File::exists($factoryPath = database_path("factories/{$model}Factory.php")) &&
+        if (File::exists($factoryPath = database_path("factories/{$factoryName}Factory.php")) &&
             !$this->confirm("A factory file for $model already exists, do you wish to overwrite the existing file?")) {
             $this->info('Canceled blueprint creation!');
             return false;
@@ -185,7 +189,7 @@ class PrefillFactory extends Command
 
         $rootNamespace = app()->getNamespace();
 
-        if (starts_with($name, $rootNamespace)) {
+        if ($this->option('own-namespace') || starts_with($name, $rootNamespace)) {
             return $name;
         }
 
