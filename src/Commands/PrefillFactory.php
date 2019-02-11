@@ -57,11 +57,14 @@ class PrefillFactory extends Command
         if (!class_exists($modelClass = $this->qualifyClass($model))) {
             $this->error($modelClass . ' could not be found!');
 
-            if (!$this->confirm("Do you wish me to create {$modelClass} for you?")) {
-                return false;
+            $createModel = $this->confirm("Do you wish me to create {$modelClass} for you?");
+
+            if ($createModel) {
+                $this->call('make:model', ['name' => $modelClass]);
+                $this->info("Please repeat the factory:prefill $model command.");
             }
 
-            $this->call('make:model', ['name' => $modelClass]);
+            return false;
         }
 
         $factoryName = collect(explode('\\', $model))->last();
