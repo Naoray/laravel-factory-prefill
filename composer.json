@@ -24,7 +24,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Naoray\\LaravelFactoryPrefill\\": "./src"
+            "Naoray\\LaravelFactoryPrefill\\": "./src",
+            "App\\": "./vendor/orchestra/testbench-core/laravel/app"
         }
     },
     "autoload-dev": {
