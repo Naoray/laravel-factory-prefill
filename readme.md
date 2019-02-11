@@ -31,9 +31,13 @@ After running `php artisan migrate` you are good to go. If you want the `factory
 
 `php artisan factory:prefill model_name`
 
-## Testing
-Was not added yet.
+*Tip: If you also want the realtionships to be loaded automatically, you have to define the methods in the models.*
 
+To prefill factories from models outside of the `App/` namespace just add the `-O` flag and provide the full path in the model name.
+
+`php artisan factory:prefill "Some\Other\Namespace\ModelName" -O`
+
+## Testing
 Run the tests with:
 
 ``` bash
