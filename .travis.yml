@@ -4,6 +4,9 @@ php:
   - 7.1
   - 7.2
 
+services:
+  - mysql
+
 env:
   matrix:
     - COMPOSER_OPTIONS=""
@@ -11,6 +14,8 @@ env:
 before_install:
   - sudo apt-get update
   - travis_retry composer self-update
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+  - cp .env.example .env
 
 install:
   - travis_retry composer update ${COMPOSER_OPTIONS} --prefer-source

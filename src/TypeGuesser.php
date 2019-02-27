@@ -2,7 +2,7 @@
 
 namespace Naoray\LaravelFactoryPrefill;
 
-use Faker\Provider\Base;
+use Illuminate\Support\Str;
 use Faker\Generator as Faker;
 
 class TypeGuesser
@@ -29,7 +29,7 @@ class TypeGuesser
      */
     public function guess($name, $size = null)
     {
-        $name = Base::toLower($name);
+        $name = Str::lower($name);
 
         if ($this->isBoolean($name)) {
             return 'boolean';
@@ -39,7 +39,21 @@ class TypeGuesser
             return 'dateTime';
         }
 
+        return $this->guessFurther($name, $size);
+    }
+
+    /**
+     * Get type guess.
+     *
+     * @param string $name
+     * @param int|null $size
+     * @return string
+     */
+    private function guessFurther($name, $size = null)
+    {
         switch (str_replace('_', '', $name)) {
+            case 'name':
+                return 'name';
             case 'firstname':
                 return 'firstName';
             case 'lastname':
@@ -90,6 +104,10 @@ class TypeGuesser
             case 'article':
             case 'description':
                 return 'text';
+            case 'integer':
+                return 'randomNumber' . ($size ? "($size)" : '');
+            case 'password':
+                return "bcrypt(\$faker->word($size))";
             default:
                 return 'word';
         }
@@ -103,7 +121,7 @@ class TypeGuesser
      */
     protected function isBoolean($name)
     {
-        return preg_match('/^is[_A-Z]/', $name);
+        return preg_match('/^(is|has)\w/', $name);
     }
 
     /**
@@ -114,7 +132,7 @@ class TypeGuesser
      */
     protected function isDateTime($name)
     {
-        return preg_match('/(_a|A)t$/', $name);
+        return preg_match('/(_)?at$/', $name);
     }
 
     /**
@@ -160,7 +178,7 @@ class TypeGuesser
      */
     protected function predictTitleType($size)
     {
-        if ($size !== null && $size <= 10) {
+        if ($size === null || $size <= 10) {
             return 'title';
         }
 

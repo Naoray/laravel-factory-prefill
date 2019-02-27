@@ -1,18 +1,17 @@
 <?php
 
-namespace Naoray\LaravelFactoryPrefill\Tests\Feature;
+namespace Naoray\LaravelFactoryPrefill\Tests;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
-use Naoray\LaravelFactoryPrefill\Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\Habit;
-use Illuminate\Support\Str;
 
 class PrefillFactoryTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

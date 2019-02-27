@@ -15,22 +15,22 @@
         }
     ],
     "require": {
-        "illuminate/support": "5.7.*",
+        "illuminate/support": "5.8.*",
         "doctrine/dbal": "^2.8",
         "fzaninotto/faker": "~1.4"
     },
     "require-dev": {
-        "orchestra/testbench": "^3.7"
+        "orchestra/testbench": "^3.8"
     },
     "autoload": {
         "psr-4": {
-            "Naoray\\LaravelFactoryPrefill\\": "./src",
-            "App\\": "./vendor/orchestra/testbench-core/laravel/app"
+            "Naoray\\LaravelFactoryPrefill\\": "./src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Naoray\\LaravelFactoryPrefill\\Tests\\": "tests"
+            "Naoray\\LaravelFactoryPrefill\\Tests\\": "tests",
+            "App\\": "./vendor/orchestra/testbench-core/laravel/app"
         }
     },
     "scripts": {
