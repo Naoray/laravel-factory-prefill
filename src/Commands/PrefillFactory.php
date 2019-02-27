@@ -117,20 +117,7 @@ class PrefillFactory extends Command
      */
     protected function mapToFaker($data)
     {
-        $guessedType = $this->typeGuesser->guess($data->name, $data->length);
-
-        $nameMethods = [
-            'name' => 'name',
-            'password' => "bcrypt(\$faker->$guessedType($data->length))"
-        ];
-
-        if (Arr::has($nameMethods, $data->name)) {
-            return $nameMethods[$data->name];
-        }
-
-        return $data->type->getName() === 'integer'
-            ? 'randomNumber'
-            : $guessedType;
+        return $this->typeGuesser->guess($data->name, $data->length, $data->type);
     }
 
     /**
