@@ -2,6 +2,8 @@
 
 namespace Naoray\LaravelFactoryPrefill\Commands;
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -122,7 +124,7 @@ class PrefillFactory extends Command
             'password' => "bcrypt(\$faker->$guessedType($data->length))"
         ];
 
-        if (array_has($nameMethods, $data->name)) {
+        if (Arr::has($nameMethods, $data->name)) {
             return $nameMethods[$data->name];
         }
 
@@ -140,8 +142,8 @@ class PrefillFactory extends Command
      */
     protected function isForeignKey($name, $tableIndexes)
     {
-        return !!array_where(array_keys($tableIndexes), function ($index) use ($name) {
-            return str_contains($index, 'foreign') && str_contains($index, $name);
+        return !!Arr::where(array_keys($tableIndexes), function ($index) use ($name) {
+            return Str::contains($index, 'foreign') && Str::contains($index, $name);
         });
     }
 
@@ -154,8 +156,8 @@ class PrefillFactory extends Command
      */
     protected function isUnique($name, $tableIndexes)
     {
-        return !!array_where(array_keys($tableIndexes), function ($index) use ($name) {
-            return str_contains($index, 'unique') && str_contains($index, $name);
+        return !!Arr::where(array_keys($tableIndexes), function ($index) use ($name) {
+            return Str::contains($index, 'unique') && Str::contains($index, $name);
         });
     }
 
