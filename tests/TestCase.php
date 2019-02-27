@@ -10,7 +10,7 @@ class TestCase extends Orchestra
     /**
      * Setup the test environment.
      */
-    public function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -42,7 +42,7 @@ class TestCase extends Orchestra
     {
         //If we're not in travis, load our local .env file
         if (empty(getenv('CI'))) {
-            $dotenv = new Dotenv(realpath(__DIR__ . '/..'));
+            $dotenv = Dotenv::create(realpath(__DIR__ . '/..'));
             $dotenv->load();
         }
 
