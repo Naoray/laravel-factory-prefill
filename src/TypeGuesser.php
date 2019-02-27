@@ -2,7 +2,7 @@
 
 namespace Naoray\LaravelFactoryPrefill;
 
-use Faker\Provider\Base;
+use Illuminate\Support\Str;
 use Faker\Generator as Faker;
 
 class TypeGuesser
@@ -29,7 +29,7 @@ class TypeGuesser
      */
     public function guess($name, $size = null)
     {
-        $name = Base::toLower($name);
+        $name = Str::lower($name);
 
         if ($this->isBoolean($name)) {
             return 'boolean';
