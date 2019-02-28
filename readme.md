@@ -2,6 +2,7 @@
 
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Total Downloads](https://img.shields.io/packagist/dt/naoray/laravel-factory-prefill.svg?style=flat-square)](https://packagist.org/packages/naoray/laravel-factory-prefill)
+[![Build Status](https://travis-ci.org/Naoray/laravel-factory-prefill.svg?branch=master)](https://travis-ci.org/Naoray/laravel-factory-prefill)
 
 Factories are a great concept and I really love to use them for testing purposes, but it sucks to write every needed column name and associated faker methods by hand. This package aims to make the process less painfull by providing a command to prefill your factories!
 
