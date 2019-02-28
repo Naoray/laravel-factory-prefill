@@ -40,11 +40,12 @@ class TestCase extends Orchestra
      */
     protected function getEnvironmentSetUp($app)
     {
-        //If we're not in travis, load our local .env file
-        if (empty(getenv('CI'))) {
-            $dotenv = Dotenv::create(realpath(__DIR__ . '/..'));
-            $dotenv->load();
+        if (!file_exists(__DIR__ . '/../.env')) {
+            return;
         }
+
+        $dotenv = Dotenv::create(__DIR__ . '/..');
+        $dotenv->load();
 
         $app['config']->set('database.default', 'mysql');
         $app['config']->set('database.connections.mysql', [

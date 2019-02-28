@@ -15,7 +15,7 @@ before_install:
   - cp .env.travis .env
   - sudo apt-get update
   - travis_retry composer self-update
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS laravel_factory_prefill;'
 
 install:
   - travis_retry composer update ${COMPOSER_OPTIONS} --prefer-source
