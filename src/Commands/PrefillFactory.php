@@ -19,7 +19,7 @@ class PrefillFactory extends Command
      */
     protected $signature = 'factory:prefill 
                                 {model : The name of the model for which a blueprint will be created}
-                                {--O|own-namespace : When using this flag the model have to includ the full namespace}';
+                                {--O|own-namespace : When using this flag the model have to include the full namespace}';
 
     /**
      * The console command description.
