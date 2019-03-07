@@ -1,17 +1,44 @@
 # Change Log
 
-## [v1.0.3](https://github.com/Naoray/laravel-factory-prefill/tree/v1.0.3) (2019-02-11)
-[Full Changelog](https://github.com/Naoray/laravel-factory-prefill/compare/v1.0.2...v1.0.3)
+## [Unreleased](https://github.com/naoray/laravel-factory-prefill/tree/HEAD)
 
-## [v1.0.2](https://github.com/Naoray/laravel-factory-prefill/tree/v1.0.2) (2019-01-04)
-[Full Changelog](https://github.com/Naoray/laravel-factory-prefill/compare/v1.0.1...v1.0.2)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.1.1...HEAD)
+
+**Closed issues:**
+
+- Required 5.8 and above? [\#8](https://github.com/Naoray/laravel-factory-prefill/issues/8)
+
+**Merged pull requests:**
+
+- Typo [\#10](https://github.com/Naoray/laravel-factory-prefill/pull/10) ([JayBizzle](https://github.com/JayBizzle))
+
+## [v1.1.1](https://github.com/naoray/laravel-factory-prefill/tree/v1.1.1) (2019-03-05)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.1...v1.1.1)
+
+**Merged pull requests:**
+
+- Added support for ~5.7/\* as well as ~5.8.\* [\#9](https://github.com/Naoray/laravel-factory-prefill/pull/9) ([Braunson](https://github.com/Braunson))
+- Typo in README [\#7](https://github.com/Naoray/laravel-factory-prefill/pull/7) ([stancl](https://github.com/stancl))
+
+## [v1.1](https://github.com/naoray/laravel-factory-prefill/tree/v1.1) (2019-02-28)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.0.3...v1.1)
+
+**Merged pull requests:**
+
+- Laravel 5.8 compability upgrade [\#6](https://github.com/Naoray/laravel-factory-prefill/pull/6) ([Naoray](https://github.com/Naoray))
+
+## [v1.0.3](https://github.com/naoray/laravel-factory-prefill/tree/v1.0.3) (2019-02-11)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.0.2...v1.0.3)
+
+## [v1.0.2](https://github.com/naoray/laravel-factory-prefill/tree/v1.0.2) (2019-01-04)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.0.1...v1.0.2)
 
 **Merged pull requests:**
 
 - recognize unique values [\#4](https://github.com/Naoray/laravel-factory-prefill/pull/4) ([Naoray](https://github.com/Naoray))
 
-## [v1.0.1](https://github.com/Naoray/laravel-factory-prefill/tree/v1.0.1) (2018-12-04)
-[Full Changelog](https://github.com/Naoray/laravel-factory-prefill/compare/v1.0...v1.0.1)
+## [v1.0.1](https://github.com/naoray/laravel-factory-prefill/tree/v1.0.1) (2018-12-04)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.0...v1.0.1)
 
 **Closed issues:**
 
@@ -21,7 +48,7 @@
 
 - v1.0.1 [\#3](https://github.com/Naoray/laravel-factory-prefill/pull/3) ([Naoray](https://github.com/Naoray))
 
-## [v1.0](https://github.com/Naoray/laravel-factory-prefill/tree/v1.0) (2018-11-23)
+## [v1.0](https://github.com/naoray/laravel-factory-prefill/tree/v1.0) (2018-11-23)
 **Closed issues:**
 
 - readme-resources [\#1](https://github.com/Naoray/laravel-factory-prefill/issues/1)
