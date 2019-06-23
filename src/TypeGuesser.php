@@ -3,6 +3,7 @@
 namespace Naoray\LaravelFactoryPrefill;
 
 use Illuminate\Support\Str;
+use Doctrine\DBAL\Types\Type;
 use Faker\Generator as Faker;
 
 class TypeGuesser
@@ -23,33 +24,32 @@ class TypeGuesser
     }
 
     /**
-     * @param string $name
-     * @param int|null $size Length of field, if known
+     * @param string                   $name
+     * @param Doctrine\DBAL\Types\Type $type
+     * @param int|null                 $size Length of field, if known
+     *
      * @return string
      */
-    public function guess($name, $size = null)
+    public function guess($name, Type $type, $size = null)
     {
         $name = Str::lower($name);
 
-        if ($this->isBoolean($name)) {
-            return 'boolean';
+        if ('word' !== $typeNameGuess = $this->guessBasedOnName($name, $size)) {
+            return $typeNameGuess;
         }
 
-        if ($this->isDateTime($name)) {
-            return 'dateTime';
-        }
-
-        return $this->guessFurther($name, $size);
+        return $this->guessBasedOnType($type, $size);
     }
 
     /**
      * Get type guess.
      *
-     * @param string $name
+     * @param string   $name
      * @param int|null $size
+     *
      * @return string
      */
-    private function guessFurther($name, $size = null)
+    private function guessBasedOnName($name, $size = null)
     {
         switch (str_replace('_', '', $name)) {
             case 'name':
@@ -99,13 +99,6 @@ class TypeGuesser
                 return 'company';
             case 'title':
                 return $this->predictTitleType($size);
-            case 'body':
-            case 'summary':
-            case 'article':
-            case 'description':
-                return 'text';
-            case 'integer':
-                return 'randomNumber' . ($size ? "($size)" : '');
             case 'password':
                 return "bcrypt(\$faker->word($size))";
             default:
@@ -114,35 +107,49 @@ class TypeGuesser
     }
 
     /**
-     * Checks if name matches boolean pattern.
+     * Try to guess the right faker method for the given type.
      *
-     * @param string $name
-     * @return boolean
+     * @param Type     $type
+     * @param int|null $size
+     *
+     * @return string
      */
-    protected function isBoolean($name)
+    protected function guessBasedOnType(Type $type, $size)
     {
-        return preg_match('/^(is|has)\w/', $name);
-    }
+        $typeName = $type->getName();
 
-    /**
-     * Checks if name matches dateTime pattern.
-     *
-     * @param string $name
-     * @return boolean
-     */
-    protected function isDateTime($name)
-    {
-        return preg_match('/(_)?at$/', $name);
+        switch ($typeName) {
+            case Type::BOOLEAN:
+                return 'boolean';
+            case Type::BIGINT:
+            case Type::INTEGER:
+            case Type::SMALLINT:
+                return 'randomNumber' . ($size ? "($size)" : '');
+            case Type::DATE:
+                return 'date';
+            case Type::DATETIME:
+                return 'dateTime';
+            case Type::DECIMAL:
+            case Type::FLOAT:
+                return 'randomFloat' . ($size ? "($size)" : '');
+            case Type::GUID:
+            case Type::STRING:
+                return 'word';
+            case Type::TEXT:
+                return 'text';
+            case Type::TIME:
+                return 'time';
+            default:
+                return 'word';
+        }
     }
 
     /**
      * Predicts county type by locale.
-     *
-     * @return void
      */
     protected function predictCountyType()
     {
-        if ($this->generator->locale == 'en_US') {
+        if ('en_US' == $this->generator->locale) {
             return "sprintf('%s County', \$faker->city)";
         }
 
@@ -153,7 +160,6 @@ class TypeGuesser
      * Predicts country code based on $size.
      *
      * @param int $size
-     * @return void
      */
     protected function predictCountryType($size)
     {
@@ -174,11 +180,10 @@ class TypeGuesser
      * Predicts type of title by $size.
      *
      * @param int $size
-     * @return void
      */
     protected function predictTitleType($size)
     {
-        if ($size === null || $size <= 10) {
+        if (null === $size || $size <= 10) {
             return 'title';
         }
 
