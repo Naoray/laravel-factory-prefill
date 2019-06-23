@@ -2,8 +2,8 @@
 
 namespace Naoray\LaravelFactoryPrefill\Commands;
 
-use Illuminate\Support\Str;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -29,14 +29,12 @@ class PrefillFactory extends Command
     protected $description = 'Prefills factory for the given model with a faker method suggestions.';
 
     /**
-     * @var \App\TypeGuesser $guesser
+     * @var \App\TypeGuesser
      */
     protected $typeGuesser;
 
     /**
      * Create a new command instance.
-     *
-     * @return void
      */
     public function __construct(TypeGuesser $guesser)
     {
@@ -56,7 +54,7 @@ class PrefillFactory extends Command
         $model = $this->argument('model');
 
         // check if model exists
-        if (!class_exists($modelClass = $this->qualifyClass($model))) {
+        if (! class_exists($modelClass = $this->qualifyClass($model))) {
             $this->error($modelClass . ' could not be found!');
 
             $createModel = $this->confirm("Do you wish me to create {$modelClass} for you?");
@@ -73,13 +71,14 @@ class PrefillFactory extends Command
 
         // check if factory exists
         if (File::exists($factoryPath = database_path("factories/{$factoryName}Factory.php")) &&
-            !$this->confirm("A factory file for $model already exists, do you wish to overwrite the existing file?")) {
+            ! $this->confirm("A factory file for $model already exists, do you wish to overwrite the existing file?")) {
             $this->info('Canceled blueprint creation!');
+
             return false;
         }
 
         // get table name from model
-        $tableName = (new $modelClass)->getTable();
+        $tableName = (new $modelClass())->getTable();
         $tableIndexes = DB::getDoctrineSchemaManager()->listTableIndexes($tableName);
 
         // get column names
@@ -89,7 +88,7 @@ class PrefillFactory extends Command
         $columnData = collect($columnListing)->map(function ($column) use ($tableName, $tableIndexes, $modelClass) {
             $data = (object) DB::connection()->getDoctrineColumn($tableName, $column)->toArray();
 
-            if (!$data->notnull || $data->autoincrement) {
+            if (! $data->notnull || $data->autoincrement) {
                 return null;
             }
 
@@ -102,7 +101,7 @@ class PrefillFactory extends Command
 
             return "'$data->name' => $value";
         })->filter(function ($data) {
-            return !!$data;
+            return (bool) $data;
         })->values()->toArray();
 
         $this->writeFactoryFile($factoryPath, $columnData, $modelClass);
@@ -113,6 +112,7 @@ class PrefillFactory extends Command
      * Map name to faker method.
      *
      * @param string $name
+     *
      * @return string
      */
     protected function mapToFaker($data)
@@ -124,27 +124,41 @@ class PrefillFactory extends Command
      * Check if column is a foreign key.
      *
      * @param string $name
-     * @param array $tableIndexes
-     * @return boolean
+     * @param array  $tableIndexes
+     *
+     * @return bool
      */
     protected function isForeignKey($name, $tableIndexes)
     {
-        return !!Arr::where(array_keys($tableIndexes), function ($index) use ($name) {
-            return Str::contains($index, 'foreign') && Str::contains($index, $name);
-        });
+        return $this->isOfColumnType($name, 'foreign', $tableIndexes);
     }
 
     /**
      * Check if column is a unique one.
      *
      * @param string $name
-     * @param array $tableIndexes
-     * @return boolean
+     * @param array  $tableIndexes
+     *
+     * @return bool
      */
     protected function isUnique($name, $tableIndexes)
     {
-        return !!Arr::where(array_keys($tableIndexes), function ($index) use ($name) {
-            return Str::contains($index, 'unique') && Str::contains($index, $name);
+        return $this->isOfColumnType($name, 'unique', $tableIndexes);
+    }
+
+    /**
+     * Check if a given name is of a given type.
+     *
+     * @param string $name
+     * @param string $type
+     * @param array  $tableIndexes
+     *
+     * @return bool
+     */
+    protected function isOfColumnType($name, $type, $tableIndexes)
+    {
+        return (bool) Arr::where(array_keys($tableIndexes), function ($index) use ($name, $type) {
+            return Str::contains($index, $type) && Str::contains($index, $name);
         });
     }
 
@@ -153,6 +167,7 @@ class PrefillFactory extends Command
      *
      * @param string $model
      * @param string $column
+     *
      * @return string
      */
     public function buildRelationFunction($model, $column)
@@ -161,7 +176,7 @@ class PrefillFactory extends Command
         $foreignCallback = 'factory(App\REPLACE_THIS::class)->lazy()';
 
         try {
-            $relatedModel = get_class((new $model)->$relationName()->getRelated());
+            $relatedModel = get_class((new $model())->$relationName()->getRelated());
 
             return str_replace('App\REPLACE_THIS', $relatedModel, $foreignCallback);
         } catch (\Exception $e) {
@@ -172,7 +187,8 @@ class PrefillFactory extends Command
     /**
      * Parse the class name and format according to the root namespace.
      *
-     * @param  string  $name
+     * @param string $name
+     *
      * @return string
      */
     protected function qualifyClass($name)
@@ -196,8 +212,7 @@ class PrefillFactory extends Command
      * Writes data to factory file.
      *
      * @param string $path
-     * @param array $data
-     * @return void
+     * @param array  $data
      */
     protected function writeFactoryFile($path, $data, $modelClass)
     {
