@@ -29,7 +29,7 @@ class PrefillFactory extends Command
     protected $description = 'Prefills factory for the given model with a faker method suggestions.';
 
     /**
-     * @var \App\TypeGuesser
+     * @var \Naoray\LaravelFactoryPrefill\TypeGuesser
      */
     protected $typeGuesser;
 
@@ -117,7 +117,7 @@ class PrefillFactory extends Command
      */
     protected function mapToFaker($data)
     {
-        return $this->typeGuesser->guess($data->name, $data->length, $data->type);
+        return $this->typeGuesser->guess($data->name, $data->type, $data->length);
     }
 
     /**
