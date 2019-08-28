@@ -15,6 +15,7 @@ class CreateCarsTable extends Migration
             $table->increments('id');
             $table->integer('owner_id')->unsigned();
             $table->string('brand');
+            $table->integer('factory_year')->nullable();
             $table->timestamps();
 
             $table->foreign('owner_id')

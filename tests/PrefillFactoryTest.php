@@ -97,4 +97,48 @@ class PrefillFactoryTest extends TestCase
             '--own-namespace' => true,
         ])->expectsOutput('We could not find any data for your factory. Did you `php artisan migrate` already?');
     }
+
+    /** @test */
+    public function it_can_include_nullable_properties_in_factories()
+    {
+        $this->artisan('factory:prefill', [
+            'model' => Car::class,
+            '--no-interaction' => true,
+            '--own-namespace' => true,
+            '--allow-nullable' => true,
+        ])->expectsOutput('Factory blueprint created!');
+
+        $this->assertFileExists(database_path('factories/CarFactory.php'));
+
+        $this->assertTrue(Str::contains(
+            File::get(database_path('factories/CarFactory.php')),
+            "'factory_year' => \$faker->randomNumber,"
+        ));
+    }
+
+    /** @test */
+    public function it_does_not_include_the_models_created_at_updated_at_or_deleted_at_timestamps_even_nullable_values_are_requested()
+    {
+        $this->artisan('factory:prefill', [
+            'model' => Car::class,
+            '--no-interaction' => true,
+            '--own-namespace' => true,
+            '--allow-nullable' => true,
+        ])->expectsOutput('Factory blueprint created!');
+
+        $this->assertFileExists(database_path('factories/CarFactory.php'));
+
+        $this->assertFalse(Str::contains(
+            File::get(database_path('factories/CarFactory.php')),
+            "'created_at' => \$faker,"
+        ));
+        $this->assertFalse(Str::contains(
+            File::get(database_path('factories/CarFactory.php')),
+            "'updated_at' => \$faker,"
+        ));
+        $this->assertFalse(Str::contains(
+            File::get(database_path('factories/CarFactory.php')),
+            "'deleted_at' => \$faker,"
+        ));
+    }
 }
