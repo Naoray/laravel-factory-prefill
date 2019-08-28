@@ -7,4 +7,4 @@ $factory->define({{ class_basename($modelReflection->getName()) }}::class, funct
       {!! $value !!},
     @endforeach
   ];
-});');
+});
