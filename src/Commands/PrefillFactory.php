@@ -224,7 +224,7 @@ class PrefillFactory extends Command
     protected function isOfColumnType($name, $type, $tableIndexes)
     {
         return (bool) Arr::where(array_keys($tableIndexes), function ($index) use ($name, $type) {
-            return Str::contains($index, $type) && Str::contains($index, $name);
+            return Str::contains($index, '_' . $type) && Str::contains($index, '_' . $name . '_');
         });
     }
 
