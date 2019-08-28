@@ -28,5 +28,6 @@ class CreateHabitsTable extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('habits');
     }
 }
