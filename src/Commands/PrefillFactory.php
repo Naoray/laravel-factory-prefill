@@ -2,6 +2,7 @@
 
 namespace Naoray\LaravelFactoryPrefill\Commands;
 
+use ReflectionClass;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
@@ -220,14 +221,11 @@ class PrefillFactory extends Command
             return $this->error('We could not find any data for your factory. Did you `php artisan migrate` already?');
         }
 
-        File::put($path, "<?php
+        $content = $this->laravel->view->make('prefill-factory-helper::factory', [
+            'modelReflection' => new ReflectionClass($modelClass),
+            'data' => $data,
+        ])->render();
 
-use Faker\Generator as Faker;
-
-\$factory->define($modelClass::class, function (Faker \$faker) {
-    return [
-        " . implode(",\r\t\t", $data) . '
-    ];
-});');
+        File::put($path, "<?php\n\n" . $content);
     }
 }

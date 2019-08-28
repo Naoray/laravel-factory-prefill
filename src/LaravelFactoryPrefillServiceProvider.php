@@ -9,21 +9,18 @@ class LaravelFactoryPrefillServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
     public function boot()
     {
         $this->commands([PrefillFactory::class]);
+
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'prefill-factory-helper');
     }
 
     /**
      * Register services.
-     *
-     * @return void
      */
     public function register()
     {
-        //
     }
 }
