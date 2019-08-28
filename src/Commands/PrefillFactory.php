@@ -216,6 +216,10 @@ class PrefillFactory extends Command
      */
     protected function writeFactoryFile($path, $data, $modelClass)
     {
+        if (0 === count($data)) {
+            return $this->error('We could not find any data for your factory. Did you `php artisan migrate` already?');
+        }
+
         File::put($path, "<?php
 
 use Faker\Generator as Faker;
