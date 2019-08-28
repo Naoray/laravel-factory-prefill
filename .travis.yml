@@ -14,8 +14,6 @@ env:
 
 before_install:
   - cp .env.travis .env
-  - sudo apt-get clean
-  - sudo rm -r /var/lib/apt/lists/*
   - sudo apt-get update
   - travis_retry composer self-update
   - mysql -e 'CREATE DATABASE IF NOT EXISTS laravel_factory_prefill;'
