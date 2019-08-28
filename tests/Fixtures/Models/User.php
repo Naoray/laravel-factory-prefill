@@ -17,4 +17,14 @@ class User extends Model
     {
         return $this->hasMany(Habit::class);
     }
+
+    /**
+     * Get all my cars.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function cars()
+    {
+        return $this->hasMany(Car::class);
+    }
 }
