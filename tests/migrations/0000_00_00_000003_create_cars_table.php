@@ -4,20 +4,22 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateHabitsTable extends Migration
+class CreateCarsTable extends Migration
 {
     /**
      * Run the migrations.
      */
     public function up()
     {
-        Schema::create('habits', function (Blueprint $table) {
+        Schema::create('cars', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->string('name');
+            $table->integer('owner_id')->unsigned();
+            $table->unsignedInteger('previous_owner_id');
+            $table->string('brand');
+            $table->integer('factory_year')->nullable();
             $table->timestamps();
 
-            $table->foreign('user_id')
+            $table->foreign('owner_id')
                 ->references('id')
                 ->on('users');
         });
@@ -28,6 +30,6 @@ class CreateHabitsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('habits');
+        Schema::dropIfExists('cars');
     }
 }
