@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Naoray\LaravelFactoryPrefill\TypeGuesser;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 class PrefillFactory extends Command
 {
@@ -60,7 +61,6 @@ class PrefillFactory extends Command
      */
     public function handle()
     {
-        // get model
         $model = $this->argument('model');
 
         if (! $modelClass = $this->modelExists($model)) {
@@ -82,27 +82,134 @@ class PrefillFactory extends Command
         $columnListing = Schema::getColumnListing($tableName);
 
         // foreach column name get the type
-        $columnData = collect($columnListing)->map(function ($column) use ($tableName, $tableIndexes) {
-            $data = (object) DB::connection()->getDoctrineColumn($tableName, $column)->toArray();
-
-            if (! $this->shouldBeIncluded($data)) {
-                return null;
-            }
-
-            $isForeignKey = $this->isForeignKey($column, $tableIndexes);
-            $isUnique = $this->isUnique($column, $tableIndexes);
-
-            $value = $isForeignKey
-                ? $this->buildRelationFunction($data->name)
-                : ($isUnique ? '$faker->unique()->' : '$faker->') . $this->mapToFaker($data);
-
-            return "'$data->name' => $value";
-        })->filter(function ($data) {
-            return (bool) $data;
-        })->values()->toArray();
+        $columnData = collect($columnListing)->mapWithKeys(function ($column) use ($tableName, $tableIndexes) {
+            return $this->getPropertiesFromTable($column, $tableName, $tableIndexes);
+        })->merge(
+            $this->getPropertiesFromMethods()
+            )->filter(function ($data) {
+                return (bool) $data;
+            })
+            ->unique()
+            ->values()
+            ->all();
 
         $this->writeFactoryFile($factoryPath, $columnData, $modelClass);
         $this->info('Factory blueprint created!');
+    }
+
+    /**
+     * Get properties from table.
+     *
+     * @param string $column
+     * @param string $tableName
+     * @param array  $tableIndexes
+     *
+     * @return array
+     */
+    protected function getPropertiesFromTable($column, $tableName, $tableIndexes)
+    {
+        $data = (object) DB::connection()->getDoctrineColumn($tableName, $column)->toArray();
+
+        if (! $this->shouldBeIncluded($data)) {
+            return [$data->name => null];
+        }
+
+        $isForeignKey = $this->isForeignKey($column, $tableIndexes);
+        $isUnique = $this->isUnique($column, $tableIndexes);
+
+        $value = $isForeignKey
+            ? $this->buildRelationFunction($data->name)
+            : ($isUnique ? '$faker->unique()->' : '$faker->') . $this->mapToFaker($data);
+
+        return [$data->name => "'$data->name' => $value"];
+    }
+
+    /**
+     * Get properties via reflection from methods.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function getPropertiesFromMethods()
+    {
+        return collect(get_class_methods($this->modelInstance))
+            ->mapWithKeys(function ($method, $key) {
+                if ($this->isMethodOfCurrentInstance($method)) {
+                    $relationMethods = $this->getRelationMethods($method);
+
+                    return $this->extractPropertiesFromMethods($relationMethods, $method, $key);
+                }
+
+                return [$key => null];
+            });
+    }
+
+    /**
+     * Check if method is a non-accessor and not a method from the parent class.
+     *
+     * @param string $method
+     *
+     * @return bool
+     */
+    protected function isMethodOfCurrentInstance($method)
+    {
+        return ! method_exists(Model::class, $method) && ! Str::startsWith($method, 'get');
+    }
+
+    /**
+     * Get relation method written code.
+     *
+     * @param string $method
+     *
+     * @return string
+     */
+    protected function getRelationMethods($method)
+    {
+        $reflectionMethod = new \ReflectionMethod($this->modelInstance, $method);
+        $file = new \SplFileObject($reflectionMethod->getFileName());
+        $file->seek($reflectionMethod->getStartLine() - 1);
+
+        $code = '';
+        while ($file->key() < $reflectionMethod->getEndLine()) {
+            $code .= $file->current();
+            $file->next();
+        }
+
+        $code = trim(preg_replace('/\s\s+/', '', $code));
+
+        return Str::before(
+            Str::after($code, 'function('),
+            '}'
+        );
+    }
+
+    /**
+     * Extract properties from relation methods.
+     *
+     * @param string $relationMethods
+     * @param string $method
+     * @param int    $key
+     *
+     * @return array
+     */
+    protected function extractPropertiesFromMethods($relationMethods, $method, $key)
+    {
+        $search = '$this->belongsTo(';
+
+        if (! Str::contains($relationMethods, $search)) {
+            return [$key => null];
+        }
+
+        $relationObj = $this->modelInstance->$method();
+
+        if (! $relationObj instanceof Relation) {
+            return [$key => null];
+        }
+
+        $property = method_exists($relationObj, 'getForeignKeyName')
+            ? $relationObj->getForeignKeyName()
+            : $relationObj->getForeignKey();
+
+        return [$property => "'$property' => " . $this->buildRelationFunction($property, $method)];
     }
 
     /**
@@ -235,9 +342,9 @@ class PrefillFactory extends Command
      *
      * @return string
      */
-    public function buildRelationFunction($column)
+    public function buildRelationFunction($column, $relationMethod = null)
     {
-        $relationName = str_replace('_id', '', $column);
+        $relationName = $relationMethod ?? Str::camel(str_replace('_id', '', $column));
         $foreignCallback = 'factory(App\REPLACE_THIS::class)->lazy()';
 
         try {

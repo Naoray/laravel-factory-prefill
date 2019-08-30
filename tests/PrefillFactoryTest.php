@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\Car;
 use Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\Book;
+use Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\User;
 use Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\Habit;
 
 class PrefillFactoryTest extends TestCase
@@ -127,7 +128,6 @@ class PrefillFactoryTest extends TestCase
         ])->expectsOutput('Factory blueprint created!');
 
         $this->assertFileExists(database_path('factories/CarFactory.php'));
-
         $this->assertFalse(Str::contains(
             File::get(database_path('factories/CarFactory.php')),
             "'created_at' => \$faker,"
@@ -139,6 +139,23 @@ class PrefillFactoryTest extends TestCase
         $this->assertFalse(Str::contains(
             File::get(database_path('factories/CarFactory.php')),
             "'deleted_at' => \$faker,"
+        ));
+    }
+
+    /** @test */
+    public function it_identifies_belongs_to_relations_through_relation_methods()
+    {
+        $this->artisan('factory:prefill', [
+            'model' => Car::class,
+            '--no-interaction' => true,
+            '--own-namespace' => true,
+            '--allow-nullable' => true,
+        ])->expectsOutput('Factory blueprint created!');
+
+        $this->assertFileExists($path = database_path('factories/CarFactory.php'));
+        $this->assertTrue(Str::contains(
+            File::get($path),
+            "'previous_owner_id' => factory(" . User::class . '::class)->lazy(),'
         ));
     }
 }

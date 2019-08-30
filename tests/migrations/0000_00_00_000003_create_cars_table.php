@@ -14,6 +14,7 @@ class CreateCarsTable extends Migration
         Schema::create('cars', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('owner_id')->unsigned();
+            $table->unsignedInteger('previous_owner_id');
             $table->string('brand');
             $table->integer('factory_year')->nullable();
             $table->timestamps();

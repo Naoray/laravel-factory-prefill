@@ -20,4 +20,14 @@ class Car extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Get my previous owner.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function previousOwner()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
