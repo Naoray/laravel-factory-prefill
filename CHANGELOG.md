@@ -1,15 +1,32 @@
 # Change Log
 
-## [Unreleased](https://github.com/naoray/laravel-factory-prefill/tree/HEAD)
+## [v1.3.0](https://github.com/naoray/laravel-factory-prefill/tree/v1.3.0) (2019-08-30)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.2.0...v1.3.0)
 
-[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.1.1...HEAD)
+**Implemented enhancements:**
+
+- Add support for Laravel 6.0 [\#14](https://github.com/Naoray/laravel-factory-prefill/issues/14)
+- Add relationship guessing based on model method [\#13](https://github.com/Naoray/laravel-factory-prefill/issues/13)
+
+**Merged pull requests:**
+
+- v1.3 [\#15](https://github.com/Naoray/laravel-factory-prefill/pull/15) ([Naoray](https://github.com/Naoray))
+
+## [v1.2.0](https://github.com/naoray/laravel-factory-prefill/tree/v1.2.0) (2019-06-23)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.1.1...v1.2.0)
+
+**Implemented enhancements:**
+
+- Map types depending on Doctrine\DBAL\Types [\#5](https://github.com/Naoray/laravel-factory-prefill/issues/5)
 
 **Closed issues:**
 
+- Nullable fields [\#11](https://github.com/Naoray/laravel-factory-prefill/issues/11)
 - Required 5.8 and above? [\#8](https://github.com/Naoray/laravel-factory-prefill/issues/8)
 
 **Merged pull requests:**
 
+- Determine Types by comparing with DBAL Types [\#12](https://github.com/Naoray/laravel-factory-prefill/pull/12) ([Naoray](https://github.com/Naoray))
 - Typo [\#10](https://github.com/Naoray/laravel-factory-prefill/pull/10) ([JayBizzle](https://github.com/JayBizzle))
 
 ## [v1.1.1](https://github.com/naoray/laravel-factory-prefill/tree/v1.1.1) (2019-03-05)
