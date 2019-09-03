@@ -5,6 +5,7 @@ namespace Naoray\LaravelFactoryPrefill;
 use Illuminate\Support\Str;
 use Doctrine\DBAL\Types\Type;
 use Faker\Generator as Faker;
+use InvalidArgumentException;
 
 class TypeGuesser
 {
@@ -12,6 +13,11 @@ class TypeGuesser
      * @var \Faker\Generator
      */
     protected $generator;
+
+    /**
+     * @var string
+     */
+    protected static $default = 'word';
 
     /**
      * Create a new TypeGuesser instance.
@@ -32,9 +38,13 @@ class TypeGuesser
      */
     public function guess($name, Type $type, $size = null)
     {
-        $name = Str::lower($name);
+        $name = str_replace('_', '', Str::lower($name));
 
-        if ('word' !== $typeNameGuess = $this->guessBasedOnName($name, $size)) {
+        if (! $size && $this->hasNativeResolverFor($name)) {
+            return $name;
+        }
+
+        if (self::$default !== $typeNameGuess = $this->guessBasedOnName($name, $size)) {
             return $typeNameGuess;
         }
 
@@ -51,49 +61,27 @@ class TypeGuesser
      */
     private function guessBasedOnName($name, $size = null)
     {
-        switch (str_replace('_', '', $name)) {
-            case 'name':
-                return 'name';
-            case 'firstname':
-                return 'firstName';
-            case 'lastname':
-                return 'lastName';
-            case 'username':
+        switch ($name) {
             case 'login':
                 return 'userName';
-            case 'email':
             case 'emailaddress':
                 return 'email';
-            case 'phonenumber':
             case 'phone':
             case 'telephone':
             case 'telnumber':
                 return 'phoneNumber';
-            case 'address':
-                return 'address';
-            case 'city':
             case 'town':
                 return 'city';
-            case 'streetaddress':
-                return 'streetAddress';
-            case 'postcode':
             case 'zipcode':
                 return 'postcode';
-            case 'state':
-                return 'state';
             case 'county':
                 return $this->predictCountyType();
             case 'country':
                 return $this->predictCountryType($size);
-            case 'locale':
-                return 'locale';
             case 'currency':
-            case 'currencycode':
                 return 'currencyCode';
-            case 'url':
             case 'website':
                 return 'url';
-            case 'company':
             case 'companyname':
             case 'employer':
                 return 'company';
@@ -102,8 +90,26 @@ class TypeGuesser
             case 'password':
                 return "bcrypt(\$faker->word($size))";
             default:
-                return 'word';
+                return self::$default;
         }
+    }
+
+    /**
+     * Check if faker instance has a native resolver for the given property.
+     *
+     * @param string $property
+     *
+     * @return bool
+     */
+    protected function hasNativeResolverFor($property)
+    {
+        try {
+            $this->generator->getFormatter($property);
+        } catch (InvalidArgumentException $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -132,15 +138,12 @@ class TypeGuesser
             case Type::DECIMAL:
             case Type::FLOAT:
                 return 'randomFloat' . ($size ? "($size)" : '');
-            case Type::GUID:
-            case Type::STRING:
-                return 'word';
             case Type::TEXT:
                 return 'text';
             case Type::TIME:
                 return 'time';
             default:
-                return 'word';
+                return self::$default;
         }
     }
 
