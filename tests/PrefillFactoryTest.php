@@ -18,10 +18,25 @@ class PrefillFactoryTest extends TestCase
     {
         parent::setUp();
 
+        $this->setUpDatabase($this->app);
+
         $this->beforeApplicationDestroyed(function () {
             File::cleanDirectory(app_path());
             File::cleanDirectory(database_path('factories'));
         });
+    }
+
+    /**
+     * Set up the database.
+     *
+     * @param \Illuminate\Foundation\Application $app
+     */
+    protected function setUpDatabase($app)
+    {
+        $this->loadMigrationsFrom([
+            '--database' => 'mysql',
+            '--realpath' => realpath(__DIR__ . '/migrations'),
+        ]);
     }
 
     /** @test */

@@ -8,19 +8,9 @@ use Orchestra\Testbench\TestCase as Orchestra;
 class TestCase extends Orchestra
 {
     /**
-     * Setup the test environment.
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        $this->setUpDatabase($this->app);
-    }
-
-    /**
      * Get package providers.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param \Illuminate\Foundation\Application $app
      *
      * @return array
      */
@@ -34,13 +24,11 @@ class TestCase extends Orchestra
     /**
      * Define environment setup.
      *
-     * @param  \Illuminate\Foundation\Application   $app
-     *
-     * @return void
+     * @param \Illuminate\Foundation\Application $app
      */
     protected function getEnvironmentSetUp($app)
     {
-        if (!file_exists(__DIR__ . '/../.env')) {
+        if (! file_exists(__DIR__ . '/../.env')) {
             return;
         }
 
@@ -58,19 +46,6 @@ class TestCase extends Orchestra
             'collation' => 'utf8_unicode_ci',
             'prefix' => '',
             'strict' => false,
-        ]);
-    }
-
-    /**
-     * Set up the database.
-     *
-     * @param \Illuminate\Foundation\Application $app
-     */
-    protected function setUpDatabase($app)
-    {
-        $this->loadMigrationsFrom([
-            '--database' => 'mysql',
-            '--realpath' => realpath(__DIR__ . '/migrations')
         ]);
     }
 }
