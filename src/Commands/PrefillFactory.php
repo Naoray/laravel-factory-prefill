@@ -93,8 +93,9 @@ class PrefillFactory extends Command
             ->values()
             ->all();
 
-        $this->writeFactoryFile($factoryPath, $columnData, $modelClass);
-        $this->info('Factory blueprint created!');
+        if ($this->writeFactoryFile($factoryPath, $columnData, $modelClass)) {
+            $this->info('Factory blueprint created!');
+        }
     }
 
     /**
@@ -385,11 +386,15 @@ class PrefillFactory extends Command
      *
      * @param string $path
      * @param array  $data
+     *
+     * @return bool
      */
     protected function writeFactoryFile($path, $data, $modelClass)
     {
         if (0 === count($data)) {
-            return $this->error('We could not find any data for your factory. Did you `php artisan migrate` already?');
+            $this->error('We could not find any data for your factory. Did you `php artisan migrate` already?');
+
+            return false;
         }
 
         $content = $this->laravel->view->make('prefill-factory-helper::factory', [
@@ -398,5 +403,7 @@ class PrefillFactory extends Command
         ])->render();
 
         File::put($path, "<?php\n\n" . $content);
+
+        return true;
     }
 }
