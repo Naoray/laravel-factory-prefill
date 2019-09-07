@@ -86,9 +86,9 @@ class PrefillFactory extends Command
             return $this->getPropertiesFromTable($column, $tableName, $tableIndexes);
         })->merge(
             $this->getPropertiesFromMethods()
-            )->filter(function ($data) {
-                return (bool) $data;
-            })
+        )->filter(function ($data) {
+            return (bool) $data;
+        })
             ->unique()
             ->values()
             ->all();
@@ -369,7 +369,7 @@ class PrefillFactory extends Command
 
         $rootNamespace = app()->getNamespace();
 
-        if ($this->option('own-namespace') || starts_with($name, $rootNamespace)) {
+        if ($this->option('own-namespace') || Str::startsWith($name, $rootNamespace)) {
             return $name;
         }
 
