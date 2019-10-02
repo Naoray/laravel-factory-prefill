@@ -1,5 +1,37 @@
 # Change Log
 
+## [v1.4](https://github.com/naoray/laravel-factory-prefill/tree/v1.4) (2019-10-02)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.3.3...v1.4)
+
+**Closed issues:**
+
+- Laravel 6.1 support [\#20](https://github.com/Naoray/laravel-factory-prefill/issues/20)
+
+## [v1.3.3](https://github.com/naoray/laravel-factory-prefill/tree/v1.3.3) (2019-09-07)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.3.2...v1.3.3)
+
+**Merged pull requests:**
+
+- prevent printing wrong information [\#19](https://github.com/Naoray/laravel-factory-prefill/pull/19) ([Naoray](https://github.com/Naoray))
+
+## [v1.3.2](https://github.com/naoray/laravel-factory-prefill/tree/v1.3.2) (2019-09-07)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.3.1...v1.3.2)
+
+**Merged pull requests:**
+
+- fix wrong method call [\#18](https://github.com/Naoray/laravel-factory-prefill/pull/18) ([Naoray](https://github.com/Naoray))
+
+## [v1.3.1](https://github.com/naoray/laravel-factory-prefill/tree/v1.3.1) (2019-09-03)
+[Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.3.0...v1.3.1)
+
+**Implemented enhancements:**
+
+- Support more native Faker method conversions [\#16](https://github.com/Naoray/laravel-factory-prefill/issues/16)
+
+**Merged pull requests:**
+
+- add check if faker instance has native resolver for given property name [\#17](https://github.com/Naoray/laravel-factory-prefill/pull/17) ([Naoray](https://github.com/Naoray))
+
 ## [v1.3.0](https://github.com/naoray/laravel-factory-prefill/tree/v1.3.0) (2019-08-30)
 [Full Changelog](https://github.com/naoray/laravel-factory-prefill/compare/v1.2.0...v1.3.0)
 
