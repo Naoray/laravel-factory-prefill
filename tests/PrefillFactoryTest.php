@@ -35,7 +35,8 @@ class PrefillFactoryTest extends TestCase
     {
         $this->loadMigrationsFrom([
             '--database' => 'mysql',
-            '--realpath' => realpath(__DIR__ . '/migrations'),
+            '--path' => realpath(__DIR__ . '/migrations'),
+            '--realpath' => true,
         ]);
     }
 
