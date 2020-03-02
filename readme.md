@@ -44,6 +44,7 @@ By default `nullable` columns are ignored. If you want to also add `nullable` co
 
 `php artisan factory:prefill "Some\Other\Namespace\ModelName" -N`
 
+
 ## Testing
 Run the tests with:
 
@@ -62,3 +63,9 @@ If you discover any security-related issues, please email krishan.koenig@googlem
 
 ## License
 The MIT License (MIT). Please see [License File](/LICENSE.md) for more information.
+
+
+## naoray/laravel-factory-prefill for enterprise
+Available as part of the Tidelift Subscription
+
+The maintainers of naoray/laravel-factory-prefill and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/packagist-naoray-laravel-factory-prefill?utm_source=packagist-naoray-laravel-factory-prefill&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
