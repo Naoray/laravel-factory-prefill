@@ -3,6 +3,7 @@
 namespace Naoray\LaravelFactoryPrefill\Tests;
 
 use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\Types;
 use Naoray\LaravelFactoryPrefill\TypeGuesser;
 
 class TypeGuesserTest extends TestCase
@@ -24,9 +25,9 @@ class TypeGuesserTest extends TestCase
      *
      * @param string $type
      *
-     * @return \Doctrine\DBAL\Types\Type
+     * @return \Doctrine\DBAL\Types\Types
      */
-    protected function getType($type = Type::STRING)
+    protected function getType($type = Types::STRING)
     {
         return Type::getType($type);
     }
@@ -34,48 +35,48 @@ class TypeGuesserTest extends TestCase
     /** @test */
     public function it_can_guess_boolean_values_by_type()
     {
-        $this->assertEquals('boolean', $this->typeGuesser->guess('is_verified', $this->getType(Type::BOOLEAN)));
+        $this->assertEquals('boolean', $this->typeGuesser->guess('is_verified', $this->getType(Types::BOOLEAN)));
     }
 
     /** @test */
     public function it_can_guess_random_integer_values_by_type()
     {
-        $this->assertEquals('randomNumber', $this->typeGuesser->guess('integer', $this->getType(Type::INTEGER)));
-        $this->assertEquals('randomNumber(10)', $this->typeGuesser->guess('integer', $this->getType(Type::INTEGER), 10));
+        $this->assertEquals('randomNumber', $this->typeGuesser->guess('integer', $this->getType(Types::INTEGER)));
+        $this->assertEquals('randomNumber(10)', $this->typeGuesser->guess('integer', $this->getType(Types::INTEGER), 10));
 
-        $this->assertEquals('randomNumber', $this->typeGuesser->guess('big_int', $this->getType(Type::BIGINT)));
-        $this->assertEquals('randomNumber(10)', $this->typeGuesser->guess('big_int', $this->getType(Type::BIGINT), 10));
+        $this->assertEquals('randomNumber', $this->typeGuesser->guess('big_int', $this->getType(Types::BIGINT)));
+        $this->assertEquals('randomNumber(10)', $this->typeGuesser->guess('big_int', $this->getType(Types::BIGINT), 10));
 
-        $this->assertEquals('randomNumber', $this->typeGuesser->guess('small_int', $this->getType(Type::SMALLINT)));
-        $this->assertEquals('randomNumber(10)', $this->typeGuesser->guess('small_int', $this->getType(Type::SMALLINT), 10));
+        $this->assertEquals('randomNumber', $this->typeGuesser->guess('small_int', $this->getType(Types::SMALLINT)));
+        $this->assertEquals('randomNumber(10)', $this->typeGuesser->guess('small_int', $this->getType(Types::SMALLINT), 10));
     }
 
     /** @test */
     public function it_can_guess_random_decimal_values_by_type()
     {
-        $this->assertEquals('randomFloat', $this->typeGuesser->guess('decimal_value', $this->getType(Type::DECIMAL)));
-        $this->assertEquals('randomFloat(10)', $this->typeGuesser->guess('decimal_value', $this->getType(Type::DECIMAL), 10));
+        $this->assertEquals('randomFloat', $this->typeGuesser->guess('decimal_value', $this->getType(Types::DECIMAL)));
+        $this->assertEquals('randomFloat(10)', $this->typeGuesser->guess('decimal_value', $this->getType(Types::DECIMAL), 10));
     }
 
     /** @test */
     public function it_can_guess_random_float_values_by_type()
     {
-        $this->assertEquals('randomFloat', $this->typeGuesser->guess('float_value', $this->getType(Type::FLOAT)));
-        $this->assertEquals('randomFloat(10)', $this->typeGuesser->guess('float_value', $this->getType(Type::FLOAT), 10));
+        $this->assertEquals('randomFloat', $this->typeGuesser->guess('float_value', $this->getType(Types::FLOAT)));
+        $this->assertEquals('randomFloat(10)', $this->typeGuesser->guess('float_value', $this->getType(Types::FLOAT), 10));
     }
 
     /** @test */
     public function it_can_guess_date_time_values_by_type()
     {
-        $this->assertEquals('dateTime', $this->typeGuesser->guess('done_at', $this->getType(Type::DATETIME)));
-        $this->assertEquals('date', $this->typeGuesser->guess('birthdate', $this->getType(Type::DATE)));
-        $this->assertEquals('time', $this->typeGuesser->guess('closing_at', $this->getType(Type::TIME)));
+        $this->assertEquals('dateTime', $this->typeGuesser->guess('done_at', $this->getType(Types::DATETIME_IMMUTABLE)));
+        $this->assertEquals('date', $this->typeGuesser->guess('birthdate', $this->getType(Types::DATE_IMMUTABLE)));
+        $this->assertEquals('time', $this->typeGuesser->guess('closing_at', $this->getType(Types::TIME_IMMUTABLE)));
     }
 
     /** @test */
     public function it_can_guess_text_values_by_type()
     {
-        $this->assertEquals('text', $this->typeGuesser->guess('body', $this->getType(Type::TEXT)));
+        $this->assertEquals('text', $this->typeGuesser->guess('body', $this->getType(Types::TEXT)));
     }
 
     /** @test */
@@ -213,7 +214,7 @@ class TypeGuesserTest extends TestCase
     /** @test */
     public function it_can_guess_password_values()
     {
-        $this->assertEquals('bcrypt($faker->word(10))', $this->typeGuesser->guess('password', $this->getType(), 10));
+        $this->assertEquals('password', $this->typeGuesser->guess('password', $this->getType()));
     }
 
     /** @test */

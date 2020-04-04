@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04c1288cce011fa5cefb853894fb6abb",
+    "content-hash": "c38fed046c6d19382314d7e1612224bf",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -931,6 +931,51 @@
                 "psr-3"
             ],
             "time": "2019-12-20T14:22:59+00:00"
+        },
+        {
+            "name": "naoray/eloquent-model-analyzer",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
+                "url": "../eloquent-model-analyzer",
+                "reference": "2911e9d0cdb2e91961ac9b62d7960b27102e99b9"
+            },
+            "require": {
+                "doctrine/dbal": "^2.10",
+                "illuminate/database": "^6.0|^7.3",
+                "illuminate/support": "^6.0|^7.3"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^5.1"
+            },
+            "type": "pakage",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Naoray\\EloquentModelAnalyzer\\EloquentModelAnalyzerServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Naoray\\EloquentModelAnalyzer\\": "./src"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Naoray\\EloquentModelAnalyzer\\Tests\\": "tests"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Krishan Koenig",
+                    "email": "krishan.koenig@googlemail.com"
+                }
+            ],
+            "description": "Helpful methods to gain more information about eloquent model classes."
         },
         {
             "name": "nesbot/carbon",
@@ -4685,8 +4730,10 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
-    "stability-flags": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "naoray/eloquent-model-analyzer": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

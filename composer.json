@@ -17,7 +17,8 @@
     "require": {
         "illuminate/support": "^6.0|^7.0",
         "doctrine/dbal": "^2.8",
-        "fzaninotto/faker": "~1.4"
+        "fzaninotto/faker": "~1.4",
+        "naoray/eloquent-model-analyzer": "dev-master"
     },
     "require-dev": {
         "orchestra/testbench": "^4.0"
@@ -42,5 +43,12 @@
                 "Naoray\\LaravelFactoryPrefill\\LaravelFactoryPrefillServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../eloquent-model-analyzer"
+        }
+    ]
 }

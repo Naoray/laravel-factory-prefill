@@ -11,7 +11,7 @@ class Habit extends Model
     /**
      * Get user of habit.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\BlongsTo
      */
     public function user()
     {

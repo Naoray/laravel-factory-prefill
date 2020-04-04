@@ -28,7 +28,7 @@ class TestCase extends Orchestra
      */
     protected function getEnvironmentSetUp($app)
     {
-        if (! file_exists(__DIR__ . '/../.env')) {
+        if (!file_exists(__DIR__ . '/../.env')) {
             return;
         }
 

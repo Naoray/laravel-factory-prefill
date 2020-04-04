@@ -2,16 +2,16 @@
 
 namespace Naoray\LaravelFactoryPrefill\Commands;
 
-use ReflectionClass;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Model;
+use Naoray\EloquentModelAnalyzer\Field;
+use Naoray\EloquentModelAnalyzer\Analyzer;
 use Naoray\LaravelFactoryPrefill\TypeGuesser;
+use Naoray\EloquentModelAnalyzer\RelationMethod;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PrefillFactory extends Command
 {
@@ -63,66 +63,96 @@ class PrefillFactory extends Command
     {
         $model = $this->argument('model');
 
-        if (! $modelClass = $this->modelExists($model)) {
+        if (!$modelClass = $this->modelExists($model)) {
             return false;
         }
 
         $factoryName = class_basename($modelClass);
-        if (! $factoryPath = $this->factoryExists($factoryName)) {
+        if (!$factoryPath = $this->factoryExists($factoryName)) {
             return false;
         }
 
         $this->modelInstance = new $modelClass();
 
-        // get table name from model
-        $tableName = $this->modelInstance->getTable();
-        $tableIndexes = DB::getDoctrineSchemaManager()->listTableIndexes($tableName);
-
-        // get column names
-        $columnListing = Schema::getColumnListing($tableName);
-
-        // foreach column name get the type
-        $columnData = collect($columnListing)->mapWithKeys(function ($column) use ($tableName, $tableIndexes) {
-            return $this->getPropertiesFromTable($column, $tableName, $tableIndexes);
-        })->merge(
-            $this->getPropertiesFromMethods()
-        )->filter(function ($data) {
-            return (bool) $data;
-        })
+        Analyzer::fields($this->modelInstance)
+            ->mapWithKeys(function (Field $field) {
+                return $this->mapTableProperties($field);
+            })
+            ->merge($this->getPropertiesFromMethods())
+            ->filter()
             ->unique()
             ->values()
-            ->all();
-
-        if ($this->writeFactoryFile($factoryPath, $columnData, $modelClass)) {
-            $this->info('Factory blueprint created!');
-        }
+            ->pipe(function ($properties) use ($factoryPath, $modelClass) {
+                if ($this->writeFactoryFile($factoryPath, $properties, $modelClass)) {
+                    $this->info('Factory blueprint created!');
+                }
+            });
     }
 
     /**
-     * Get properties from table.
+     * Maps properties.
      *
-     * @param string $column
-     * @param string $tableName
-     * @param array  $tableIndexes
-     *
+     * @param Field $field
      * @return array
      */
-    protected function getPropertiesFromTable($column, $tableName, $tableIndexes)
+    protected function mapTableProperties(Field $field): array
     {
-        $data = (object) DB::connection()->getDoctrineColumn($tableName, $column)->toArray();
+        $key = $field->getName();
 
-        if (! $this->shouldBeIncluded($data)) {
-            return [$data->name => null];
+        if (!$this->shouldBeIncluded($field)) {
+            return $this->mapToFactory($key);
         }
 
-        $isForeignKey = $this->isForeignKey($column, $tableIndexes);
-        $isUnique = $this->isUnique($column, $tableIndexes);
+        if ($field->isForeignKey()) {
+            return $this->mapToFactory(
+                $key,
+                $this->buildRelationFunction($key)
+            );
+        }
 
-        $value = $isForeignKey
-            ? $this->buildRelationFunction($data->name)
-            : ($isUnique ? '$faker->unique()->' : '$faker->') . $this->mapToFaker($data);
+        if ($key === 'password') {
+            return $this->mapToFactory($key, "bcrypt('password')");
+        }
 
-        return [$data->name => "'$data->name' => $value"];
+        $value = $field->isUnique()
+            ? '$faker->unique()->'
+            : '$faker->';
+
+        return $this->mapToFactory($key, $value . $this->mapToFaker($field));
+    }
+
+    /**
+     * Checks if a given column should be included in the factory.
+     *
+     * @param Field $field
+     */
+    protected function shouldBeIncluded(Field $field)
+    {
+        $shouldBeIncluded = ($field->getNotNull() || $this->option('allow-nullable'))
+            && !$field->getAutoincrement();
+
+        if (!$this->modelInstance->usesTimestamps()) {
+            return $shouldBeIncluded;
+        }
+
+        $timestamps = [
+            $this->modelInstance->getCreatedAtColumn(),
+            $this->modelInstance->getUpdatedAtColumn(),
+        ];
+
+        if (method_exists($this->modelInstance, 'getDeletedAtColumn')) {
+            $timestamps[] = $this->modelInstance->getDeletedAtColumn();
+        }
+
+        return $shouldBeIncluded
+            && !in_array($field->getName(), $timestamps);
+    }
+
+    protected function mapToFactory($key, $value = null): array
+    {
+        return [
+            $key => is_null($value) ? $value : "'{$key}' => $value",
+        ];
     }
 
     /**
@@ -132,85 +162,15 @@ class PrefillFactory extends Command
      */
     protected function getPropertiesFromMethods()
     {
-        return collect(get_class_methods($this->modelInstance))
-            ->mapWithKeys(function ($method, $key) {
-                if ($this->isMethodOfCurrentInstance($method)) {
-                    $relationMethods = $this->getRelationMethods($method);
+        return Analyzer::relations($this->modelInstance)
+            ->filter(function (RelationMethod $method) {
+                return $method->returnType() === BelongsTo::class;
+            })
+            ->mapWithKeys(function (RelationMethod $method) {
+                $property = $method->foreignKey();
 
-                    return $this->extractPropertiesFromMethods($relationMethods, $method, $key);
-                }
-
-                return [$key => null];
+                return [$property => "'$property' => " . $this->buildRelationFunction($property, $method)];
             });
-    }
-
-    /**
-     * Check if method is a non-accessor and not a method from the parent class.
-     *
-     * @param string $method
-     *
-     * @return bool
-     */
-    protected function isMethodOfCurrentInstance($method)
-    {
-        return ! method_exists(Model::class, $method) && ! Str::startsWith($method, 'get');
-    }
-
-    /**
-     * Get relation method written code.
-     *
-     * @param string $method
-     *
-     * @return string
-     */
-    protected function getRelationMethods($method)
-    {
-        $reflectionMethod = new \ReflectionMethod($this->modelInstance, $method);
-        $file = new \SplFileObject($reflectionMethod->getFileName());
-        $file->seek($reflectionMethod->getStartLine() - 1);
-
-        $code = '';
-        while ($file->key() < $reflectionMethod->getEndLine()) {
-            $code .= $file->current();
-            $file->next();
-        }
-
-        $code = trim(preg_replace('/\s\s+/', '', $code));
-
-        return Str::before(
-            Str::after($code, 'function('),
-            '}'
-        );
-    }
-
-    /**
-     * Extract properties from relation methods.
-     *
-     * @param string $relationMethods
-     * @param string $method
-     * @param int    $key
-     *
-     * @return array
-     */
-    protected function extractPropertiesFromMethods($relationMethods, $method, $key)
-    {
-        $search = '$this->belongsTo(';
-
-        if (! Str::contains($relationMethods, $search)) {
-            return [$key => null];
-        }
-
-        $relationObj = $this->modelInstance->$method();
-
-        if (! $relationObj instanceof Relation) {
-            return [$key => null];
-        }
-
-        $property = method_exists($relationObj, 'getForeignKeyName')
-            ? $relationObj->getForeignKeyName()
-            : $relationObj->getForeignKey();
-
-        return [$property => "'$property' => " . $this->buildRelationFunction($property, $method)];
     }
 
     /**
@@ -246,7 +206,7 @@ class PrefillFactory extends Command
     protected function factoryExists($name)
     {
         $factoryPath = database_path("factories/{$name}Factory.php");
-        if (! File::exists($factoryPath) || $this->confirm("A factory file for $name already exists, do you wish to overwrite the existing file?")) {
+        if (!File::exists($factoryPath) || $this->confirm("A factory file for $name already exists, do you wish to overwrite the existing file?")) {
             return $factoryPath;
         }
 
@@ -256,84 +216,19 @@ class PrefillFactory extends Command
     }
 
     /**
-     * Checks if a given column should be included in the factory.
-     *
-     * @param stdClass $data
-     */
-    protected function shouldBeIncluded($data)
-    {
-        $shouldBeIncluded = ($data->notnull || $this->option('allow-nullable'))
-            && ! $data->autoincrement;
-
-        if (! $this->modelInstance->usesTimestamps()) {
-            return $shouldBeIncluded;
-        }
-
-        $timestamps = [
-            $this->modelInstance->getCreatedAtColumn(),
-            $this->modelInstance->getUpdatedAtColumn(),
-        ];
-
-        if (method_exists($this->modelInstance, 'getDeletedAtColumn')) {
-            $timestamps[] = $this->modelInstance->getDeletedAtColumn();
-        }
-
-        return $shouldBeIncluded
-            && ! in_array($data->name, $timestamps);
-    }
-
-    /**
-     * Check if column is a foreign key.
-     *
-     * @param string $name
-     * @param array  $tableIndexes
-     *
-     * @return bool
-     */
-    protected function isForeignKey($name, $tableIndexes)
-    {
-        return $this->isOfColumnType($name, 'foreign', $tableIndexes);
-    }
-
-    /**
-     * Check if column is a unique one.
-     *
-     * @param string $name
-     * @param array  $tableIndexes
-     *
-     * @return bool
-     */
-    protected function isUnique($name, $tableIndexes)
-    {
-        return $this->isOfColumnType($name, 'unique', $tableIndexes);
-    }
-
-    /**
      * Map name to faker method.
      *
-     * @param stdClass $data
+     * @param Field $data
      *
      * @return string
      */
-    protected function mapToFaker($data)
+    protected function mapToFaker(Field $field)
     {
-        return $this->typeGuesser->guess($data->name, $data->type, $data->length);
-    }
-
-    /**
-     * Check if a given name is of a given type.
-     *
-     * @param string $name
-     * @param string $type
-     * @param array  $tableIndexes
-     *
-     * @return bool
-     */
-    protected function isOfColumnType($name, $type, $tableIndexes)
-    {
-        return (bool) Arr::where(array_keys($tableIndexes), function ($index) use ($name, $type) {
-            return Str::contains($index, '_' . $type) && Str::contains($index, '_' . $name . '_');
-        });
+        return $this->typeGuesser->guess(
+            $field->getName(),
+            $field->getType(),
+            $field->getLength()
+        );
     }
 
     /**
@@ -343,9 +238,9 @@ class PrefillFactory extends Command
      *
      * @return string
      */
-    public function buildRelationFunction($column, $relationMethod = null)
+    public function buildRelationFunction(string $column, $relationMethod = null)
     {
-        $relationName = $relationMethod ?? Str::camel(str_replace('_id', '', $column));
+        $relationName = optional($relationMethod)->getName() ?? Str::camel(str_replace('_id', '', $column));
         $foreignCallback = 'factory(App\REPLACE_THIS::class)->lazy()';
 
         try {
@@ -397,8 +292,8 @@ class PrefillFactory extends Command
             return false;
         }
 
-        $content = $this->laravel->view->make('prefill-factory-helper::factory', [
-            'modelReflection' => new ReflectionClass($modelClass),
+        $content = view('prefill-factory-helper::factory', [
+            'modelClass' => $modelClass,
             'data' => $data,
         ])->render();
 

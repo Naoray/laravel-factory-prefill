@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use Doctrine\DBAL\Types\Type;
 use Faker\Generator as Faker;
 use InvalidArgumentException;
+use Doctrine\DBAL\Types\Types;
 
 class TypeGuesser
 {
@@ -40,7 +41,7 @@ class TypeGuesser
     {
         $name = str_replace('_', '', Str::lower($name));
 
-        if (! $size && $this->hasNativeResolverFor($name)) {
+        if (!$size && $this->hasNativeResolverFor($name)) {
             return $name;
         }
 
@@ -87,8 +88,6 @@ class TypeGuesser
                 return 'company';
             case 'title':
                 return $this->predictTitleType($size);
-            case 'password':
-                return "bcrypt(\$faker->word($size))";
             default:
                 return self::$default;
         }
@@ -125,22 +124,25 @@ class TypeGuesser
         $typeName = $type->getName();
 
         switch ($typeName) {
-            case Type::BOOLEAN:
+            case Types::BOOLEAN:
                 return 'boolean';
-            case Type::BIGINT:
-            case Type::INTEGER:
-            case Type::SMALLINT:
+            case Types::BIGINT:
+            case Types::INTEGER:
+            case Types::SMALLINT:
                 return 'randomNumber' . ($size ? "($size)" : '');
-            case Type::DATE:
+            case Types::DATE_MUTABLE:
+            case Types::DATE_IMMUTABLE:
                 return 'date';
-            case Type::DATETIME:
+            case Types::DATETIME_MUTABLE:
+            case Types::DATETIME_IMMUTABLE:
                 return 'dateTime';
-            case Type::DECIMAL:
-            case Type::FLOAT:
+            case Types::DECIMAL:
+            case Types::FLOAT:
                 return 'randomFloat' . ($size ? "($size)" : '');
-            case Type::TEXT:
+            case Types::TEXT:
                 return 'text';
-            case Type::TIME:
+            case Types::TIME_MUTABLE:
+            case Types::TIME_IMMUTABLE:
                 return 'time';
             default:
                 return self::$default;

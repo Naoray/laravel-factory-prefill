@@ -174,4 +174,20 @@ class PrefillFactoryTest extends TestCase
             "'previous_owner_id' => factory(" . User::class . '::class)->lazy(),'
         ));
     }
+
+    /** @test */
+    public function it_can_correctly_prefill_password_columns()
+    {
+        $this->artisan('factory:prefill', [
+            'model' => User::class,
+            '--no-interaction' => true,
+            '--own-namespace' => true,
+        ])->expectsOutput('Factory blueprint created!');
+
+        $this->assertFileExists(database_path('factories/UserFactory.php'));
+        $this->assertTrue(Str::contains(
+            File::get(database_path('factories/UserFactory.php')),
+            "'password' => bcrypt('password'),"
+        ));
+    }
 }
