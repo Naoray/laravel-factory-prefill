@@ -4,8 +4,6 @@ namespace Naoray\LaravelFactoryPrefill\Tests;
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\Car;
-use Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\Habit;
 
 class PrefillAllTest extends TestCase
 {
@@ -69,7 +67,10 @@ class PrefillAllTest extends TestCase
     public function it_can_create_prefilled_factories_for_defined_models_only_with_including_namespace()
     {
         $this->artisan('factory:all', [
-            'models' => [Car::class, Habit::class],
+            'models' => [
+                '\Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\Car',
+                '\Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\Habit'
+            ],
             '--no-interaction' => true,
             '--allow-nullable' => true,
         ])->expectsOutput('2 Factories created');

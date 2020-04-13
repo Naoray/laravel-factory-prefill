@@ -38,7 +38,7 @@ class PrefillAll extends Command
     {
         $directory = $this->resolveModelPath();
         $models = $this->argument('models');
-
+        
         if (!File::exists($directory)) {
             $this->error("No files in [$directory] were found!");
 
@@ -46,11 +46,11 @@ class PrefillAll extends Command
         }
 
         $this->loadModels($directory, $models)->filter(function ($modelClass) {
-            return !(new ReflectionClass($modelClass))->isSubclassOf(Model::class)
+            return (new ReflectionClass($modelClass))->isSubclassOf(Model::class)
                 && $this->callSilent(PrefillFactory::class, [
                     'model' => $modelClass,
                     '--no-interaction' => true,
-                    '--own-namespace' => (bool)$this->option('path'),
+                    '--own-namespace' => true,
                     '--allow-nullable' => $this->option('allow-nullable'),
                 ]) === 0;
         })->pipe(function ($collection) {
@@ -62,16 +62,16 @@ class PrefillAll extends Command
     protected function loadModels(string $directory, array $models = []): Collection
     {
         if (!empty($models)) {
-            return collect($models)->map(function ($name) {
+            return collect($models)->map(function ($name) use ($directory) {
                 if (strpos($name, '\\') !== false) {
                     return $name;
                 }
 
-                return str_replace(
+                return dd(str_replace(
                     [DIRECTORY_SEPARATOR, basename($this->laravel->path()) . '\\'],
                     ['\\', $this->laravel->getNamespace()],
-                    $this->dir . DIRECTORY_SEPARATOR . $name
-                );
+                    basename($this->laravel->path()) . DIRECTORY_SEPARATOR . $name
+                ));
             });
         }
 
