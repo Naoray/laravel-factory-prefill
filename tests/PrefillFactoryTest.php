@@ -98,7 +98,6 @@ class PrefillFactoryTest extends TestCase
         ])->expectsOutput('Factory blueprint created!');
 
         $this->assertFileExists(database_path('factories/CarFactory.php'));
-
         $this->assertTrue(Str::contains(
             File::get(database_path('factories/CarFactory.php')),
             "'owner_id' => factory(Naoray\LaravelFactoryPrefill\Tests\Fixtures\Models\User::class)->lazy(),"

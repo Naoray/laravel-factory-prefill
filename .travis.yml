@@ -21,4 +21,4 @@ install:
   - travis_retry composer update ${COMPOSER_OPTIONS} --prefer-source
 
 script:
-  - phpunit
+  - vendor/bin/phpunit

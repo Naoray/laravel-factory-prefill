@@ -5,12 +5,10 @@ namespace Naoray\LaravelFactoryPrefill\Commands;
 use Illuminate\Support\Str;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Database\Eloquent\Model;
-use Naoray\EloquentModelAnalyzer\Field;
+use Naoray\EloquentModelAnalyzer\Column;
 use Naoray\EloquentModelAnalyzer\Analyzer;
 use Naoray\LaravelFactoryPrefill\TypeGuesser;
 use Naoray\EloquentModelAnalyzer\RelationMethod;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PrefillFactory extends Command
@@ -21,9 +19,9 @@ class PrefillFactory extends Command
      * @var string
      */
     protected $signature = 'factory:prefill 
-                                {model : The name of the model for which a blueprint will be created}
-                                {--O|own-namespace : When using this flag the model have to include the full namespace}
-                                {--N|allow-nullable : Also list nullable columns in your factory}';
+                        {model : The name of the model for which a blueprint will be created}
+                        {--O|own-namespace : When using this flag the model have to include the full namespace}
+                        {--N|allow-nullable : Also list nullable columns in your factory}';
 
     /**
      * The console command description.
@@ -64,46 +62,49 @@ class PrefillFactory extends Command
         $model = $this->argument('model');
 
         if (!$modelClass = $this->modelExists($model)) {
-            return false;
+            return 1;
         }
 
         $factoryName = class_basename($modelClass);
         if (!$factoryPath = $this->factoryExists($factoryName)) {
-            return false;
+            return 1;
         }
 
         $this->modelInstance = new $modelClass();
 
-        Analyzer::fields($this->modelInstance)
-            ->mapWithKeys(function (Field $field) {
-                return $this->mapTableProperties($field);
+        return Analyzer::columns($this->modelInstance)
+            ->mapWithKeys(function (Column $column) {
+                return $this->mapTableProperties($column);
             })
             ->merge($this->getPropertiesFromMethods())
             ->filter()
             ->unique()
             ->values()
             ->pipe(function ($properties) use ($factoryPath, $modelClass) {
-                if ($this->writeFactoryFile($factoryPath, $properties, $modelClass)) {
+                $statusCode = $this->writeFactoryFile($factoryPath, $properties, $modelClass);
+                if ($statusCode === 0) {
                     $this->info('Factory blueprint created!');
                 }
+
+                return $statusCode;
             });
     }
 
     /**
      * Maps properties.
      *
-     * @param Field $field
+     * @param Column $column
      * @return array
      */
-    protected function mapTableProperties(Field $field): array
+    protected function mapTableProperties(Column $column): array
     {
-        $key = $field->getName();
+        $key = $column->getName();
 
-        if (!$this->shouldBeIncluded($field)) {
+        if (!$this->shouldBeIncluded($column)) {
             return $this->mapToFactory($key);
         }
 
-        if ($field->isForeignKey()) {
+        if ($column->isForeignKey()) {
             return $this->mapToFactory(
                 $key,
                 $this->buildRelationFunction($key)
@@ -114,22 +115,22 @@ class PrefillFactory extends Command
             return $this->mapToFactory($key, "bcrypt('password')");
         }
 
-        $value = $field->isUnique()
+        $value = $column->isUnique()
             ? '$faker->unique()->'
             : '$faker->';
 
-        return $this->mapToFactory($key, $value . $this->mapToFaker($field));
+        return $this->mapToFactory($key, $value . $this->mapToFaker($column));
     }
 
     /**
      * Checks if a given column should be included in the factory.
      *
-     * @param Field $field
+     * @param Column $column
      */
-    protected function shouldBeIncluded(Field $field)
+    protected function shouldBeIncluded(Column $column)
     {
-        $shouldBeIncluded = ($field->getNotNull() || $this->option('allow-nullable'))
-            && !$field->getAutoincrement();
+        $shouldBeIncluded = ($column->getNotNull() || $this->option('allow-nullable'))
+            && !$column->getAutoincrement();
 
         if (!$this->modelInstance->usesTimestamps()) {
             return $shouldBeIncluded;
@@ -145,7 +146,7 @@ class PrefillFactory extends Command
         }
 
         return $shouldBeIncluded
-            && !in_array($field->getName(), $timestamps);
+            && !in_array($column->getName(), $timestamps);
     }
 
     protected function mapToFactory($key, $value = null): array
@@ -218,16 +219,16 @@ class PrefillFactory extends Command
     /**
      * Map name to faker method.
      *
-     * @param Field $data
+     * @param Column $column
      *
      * @return string
      */
-    protected function mapToFaker(Field $field)
+    protected function mapToFaker(Column $column)
     {
         return $this->typeGuesser->guess(
-            $field->getName(),
-            $field->getType(),
-            $field->getLength()
+            $column->getName(),
+            $column->getType(),
+            $column->getLength()
         );
     }
 
@@ -289,7 +290,7 @@ class PrefillFactory extends Command
         if (0 === count($data)) {
             $this->error('We could not find any data for your factory. Did you `php artisan migrate` already?');
 
-            return false;
+            return 1;
         }
 
         $content = view('prefill-factory-helper::factory', [
@@ -299,6 +300,6 @@ class PrefillFactory extends Command
 
         File::put($path, "<?php\n\n" . $content);
 
-        return true;
+        return 0;
     }
 }
