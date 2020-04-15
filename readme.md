@@ -30,11 +30,24 @@ With `laravel-factory-prefill` you can just skip the previous command call and i
 ## Usage
 After running `php artisan migrate` you are good to go. If you want the `factory:prefill` command to notice the model relations, you should implement the methods first!
 
-`php artisan factory:prefill model_name`
-
 *Tip: If you also want the realtionships to be loaded automatically, you have to define the methods in the models.*
 
-### Models with different namespace
+### Fill all Factories
+To generate factories for all models run
+
+`php artisan factory:all`
+
+#### Models in different directories
+To prefill factories from models outside of the `app/` directory just add the `-P` flag and provide the path.
+
+`php artisan factory:all --path=Some/Other/Path`
+
+you can also append the `--realpath` option to indicate that the given path is a pre-resolved absolut path.
+
+### Fill single Factory
+To fill a single factory you can either run `php artisan factory:prefill model_name` or `php artisan factory:all model_name`.
+
+#### Models with different namespace
 To prefill factories from models outside of the `App/` namespace just add the `-O` flag and provide the full path in the model name.
 
 `php artisan factory:prefill "Some\Other\Namespace\ModelName" -O`
@@ -42,7 +55,9 @@ To prefill factories from models outside of the `App/` namespace just add the `-
 ### Nullable columns
 By default `nullable` columns are ignored. If you want to also add `nullable` columns to your factory includ the flag `-N` or `--allow-nullable`.
 
-`php artisan factory:prefill "Some\Other\Namespace\ModelName" -N`
+`php artisan factory:prefill ModelName -N`
+or
+`php artisan factory:all -N`
 
 
 ## Testing
