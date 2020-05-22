@@ -67,11 +67,11 @@ class PrefillAll extends Command
                     return $name;
                 }
 
-                return dd(str_replace(
+                return str_replace(
                     [DIRECTORY_SEPARATOR, basename($this->laravel->path()) . '\\'],
                     ['\\', $this->laravel->getNamespace()],
                     basename($this->laravel->path()) . DIRECTORY_SEPARATOR . $name
-                ));
+                );
             });
         }
 
