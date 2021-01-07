@@ -4,6 +4,8 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/naoray/laravel-factory-prefill.svg?style=flat-square)](https://packagist.org/packages/naoray/laravel-factory-prefill)
 [![Build Status](https://travis-ci.org/Naoray/laravel-factory-prefill.svg?branch=master)](https://travis-ci.org/Naoray/laravel-factory-prefill)
 
+**This repository has been archived! Use Shift's [Factory Generator](https://github.com/laravel-shift/factory-generator) to utilize the new class factories of Laravel 8.**
+
 Factories are a great concept and I really love to use them for testing purposes, but it sucks to write every needed column name and associated faker methods by hand. This package aims to make the process less painful by providing a command to prefill your factories!
 
 After creating a factory with the artisan cli you end up having something like this:
